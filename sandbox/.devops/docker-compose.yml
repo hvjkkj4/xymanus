@@ -1,0 +1,20 @@
+services:
+  mooc_manus_sandbox_dev:
+    # 容器服务构建来源：使用完整的sandbox镜像，而不是只带SSH的开发镜像
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    # 将当前目录挂载到工作空间/sandbox
+    volumes:
+      - ../:/sandbox
+    # 端口映射
+    ports:
+      - "2222:22" # 本地2222->容器SSH 22
+      - "8080:8080" # 本地8080->容器Sandbox 8080
+      - "9222:9222" # Chrome DevTools Protocol
+      - "5900:5900" # VNC
+      - "6080:6080" # WebSocket VNC
+    # 容器的名字
+    container_name: mooc_manus_sandbox_dev
+    # 碰到错误则自动重启
+    restart: always

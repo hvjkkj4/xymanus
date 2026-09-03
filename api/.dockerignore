@@ -1,0 +1,32 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 环境与密钥由 Compose env_file 注入，不复制进镜像
+.env
+.env.*
+
+# 测试与质量
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+tests/
+coverage.xml
+htmlcov/
+
+# IDE/系统
+.idea/
+.vscode/
+.DS_Store
+
+# 版本控制
+.git/
+.gitignore
+
+# 日志与临时文件
+*.log
+*.pid
+tmp/

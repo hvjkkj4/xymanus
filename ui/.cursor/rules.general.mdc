@@ -1,0 +1,72 @@
+---
+description: MoocManus UI 通用工程与代码规范（生产级、保持简洁）
+alwaysApply: true
+---
+
+# MoocManus UI — General Rules
+
+## Stack
+
+- **Next.js 16** (App Router) + **React 19** + **TypeScript** (strict) + **Tailwind CSS v4**
+- UI: **shadcn/ui** (`radix-nova`) + **Radix** + **lucide-react**；样式工具：`cn()` from `@/lib/utils`
+- 路径别名：`@/*` → 项目根；目录约定：`app/`、`components/`、`components/ui/`、`hooks/`、`lib/`；设计稿：`docs/design/`
+- 产品语言：界面文案默认 **中文**（`lang="zh-CN"`）
+
+## Next.js（必读）
+
+- 本仓库 Next 与训练数据可能不一致。改路由、数据获取、缓存、Server Actions 前，先查 `node_modules/next/dist/docs/`，并遵守弃用说明。
+- 默认 **Server Component**；仅在需要浏览器 API、事件、本地状态时加 `'use client'`，且尽量下沉到叶子组件。
+- `params` / `searchParams` 按当前 App Router 约定处理（多为 `Promise`，需 `await`）。
+- 不要改动 `AGENTS.md` / `CLAUDE.md` 中由 `next dev` 自动维护的段落。
+
+## 代码质量
+
+- 生产级：完整类型、可空与边界显式处理；禁止 `any`、空 `catch`、无意义注释。
+- 只改任务相关代码；不顺手重构、不扩 scope、不擅自加文档/依赖。
+- 命名：组件/类型 `PascalCase`；函数/变量 `camelCase`；文件 `kebab-case`（如 `chat-input.tsx`）。
+- 组件优先 **named export**（`export function Foo`）；页面用默认导出。
+- Props 用明确 `interface`；可复用样式用 `className?: string` + `cn()`。
+- 错误与加载：用户可见反馈；异步失败要可恢复或明确提示，不静默吞错。
+
+## UI / 设计稿
+
+- 设计稿统一放在 `docs/design/`。实现或还原 UI 前先读该目录对应页面/组件稿，再对照现有组件与 token 写代码。
+- Figma 或导出稿仅作参考，禁止整段粘贴。图标用 `lucide-react`；优先 `@/components/ui/*`，勿改其底层除非修 bug。
+
+**画布与排版**
+
+- 右侧画布：`bg-[#f8f8f7]`；卡片/输入区：`bg-white` + `border`
+- 主栏宽：`max-w-full sm:max-w-3xl sm:min-w-97.5`；侧栏 `--sidebar-width: 300px`
+- 主文案 `text-gray-700`；次文案/占位 `text-gray-500`；正文字号默认 `text-sm`
+- 首页问候 `text-[32px] font-bold`；标题 `text-lg`；辅助 `text-xs`
+- 输入容器 `rounded-2xl py-3`；圆形图标按钮 `rounded-full w-8 h-8`；Logo 占位 `w-[80px] h-9 rounded-md`
+- 字体：Geist → `--font-sans`；圆角基准 `--radius: 0.625rem`（见 `app/globals.css`）
+
+**交互与布局**
+
+- 可点元素加 `cursor-pointer`；输入框 `scrollbar-hide` + `outline-none` + `resize-none`
+- 会话页：header `sticky top-0`，输入区 `sticky bottom-0`；主栏 `flex-1 min-w-0`
+- Hover 才显示的次操作（如时间戳）用 `invisible group-hover:visible`
+- 文案中文；对齐现有间距（`px-4`、`gap-2` / `gap-2.5`、`mb-4`）
+- 新色值优先 token（`bg-background`、`text-muted-foreground` 等）；画布 `#f8f8f7` 与 `text-gray-*` 沿用现稿，勿另起一套
+
+## API（后端）
+
+- 基址：`http://localhost:8000/api`；规范源：`http://localhost:8000/openapi.json`（OpenAPI 3.1，MoocManus通用智能体 v1.0.0）。对接前以该文档为准，勿臆造路径或字段。请求路径相对于基址，**不要再拼一层 `/api`**。
+- 无鉴权方案。JSON 接口统一信封 `{ code, msg, data }`（`code` 默认 200）。校验失败 422。字段 **snake_case**。
+- 删除/启停用均为 **POST**（如 `.../delete`、`.../enabled`），不用 HTTP DELETE。上传 `POST /files` 为 `multipart/form-data`。
+- SSE 事件：`message` / `plan` / `step` / `tool` / `title` / `error` / `done` / `wait`。会话状态：`pending | running | waiting | completed`。
+
+**状态** `GET /status`
+
+**设置** `GET|POST /app-config/llm` · `GET|POST /app-config/agent` · `GET|POST /app-config/mcp-servers` · `POST .../mcp-servers/{server_name}/delete|enabled` · `GET|POST /app-config/a2a-servers` · `POST .../a2a-servers/{a2a_id}/delete|enabled`
+
+**文件** `POST /files` · `GET /files/{file_id}` · `GET /files/{file_id}/download`
+
+**会话** `GET|POST /sessions` · `POST /sessions/stream` · `GET /sessions/{session_id}` · `POST .../chat|stop|delete|clear-unread-message-count` · `GET .../files` · `POST .../file` · `POST .../shell`
+
+## 输出约束
+
+- 改代码前对照现有文件风格（import 顺序、中文注释分区、间距）。
+- 提交/PR 仅在用户明确要求时进行。
+- 不确定 Next API 时查 Next 文档；不确定后端时查 `openapi.json`。

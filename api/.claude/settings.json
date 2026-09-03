@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m py_compile app/domain/services/agents/base.py app/domain/services/agents/react.py)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/docs)",
+      "Bash(echo \"size=$\\(wc -c < /tmp/sse_out.txt\\) bytes\"; echo \"=== 事件类型统计 ===\"; grep \"^event:\" /tmp/sse_out.txt | sort | uniq -c; echo; echo \"=== 错误事件 ===\"; grep -A1 \"event: error\" /tmp/sse_out.txt || echo \"\\(无 error 事件\\)\")",
+      "Read(//tmp/**)",
+      "Bash(cat /tmp/sse_out.txt; echo \"---bg output---\"; cat \"C:\\\\Users\\\\37615\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-37615-Desktop-mooc-manus-api\\\\0e102253-1f14-4784-a452-14e094f9cd75\\\\tasks\\\\blo3fkm0p.output\")",
+      "Bash(curl -s \"http://localhost:8000/api/sessions/8de60a2e-b181-4267-9a22-9996cba7f566\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\)['data']; print\\('status=', d.get\\('status'\\)\\); evs=d.get\\('events',[]\\); print\\('events=', len\\(evs\\)\\); [print\\(' ', e.get\\('event'\\), '|', \\(e.get\\('data'\\) or {}\\).get\\('status'\\) or ''\\) for e in evs[-8:]]\")",
+      "Bash(python -c ' *)",
+      "Bash(wmic process *)",
+      "Bash(netstat -ano)",
+      "Bash(rm -f _chat_body.json)",
+      "Bash(printf '{\"message\":\"创建一个 Python 脚本文件 generate_numbers.py，用 random.randint\\(0,100\\) 生成 30 个随机整数，并执行脚本输出结果\"}')",
+      "Bash(curl -s -o /dev/null -w \"server http=%{http_code}\\\\n\" -X POST http://localhost:8000/api/sessions)",
+      "Bash(python -c \"import sys,json; d=json.loads\\(sys.stdin.read\\(\\).replace\\('data: ',''\\).strip\\(\\)\\); print\\('message:', d.get\\('message'\\)\\)\")"
+    ]
+  }
+}

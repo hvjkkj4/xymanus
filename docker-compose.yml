@@ -1,0 +1,129 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: manus-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - manus-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: manus-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-manus}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - manus-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d manus"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  sandbox:
+    build:
+      context: ./sandbox
+    image: manus-sandbox:latest
+    container_name: manus-sandbox
+    restart: unless-stopped
+    networks:
+      - manus-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8080/api/supervisor/status >/dev/null",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  api:
+    build:
+      context: ./api
+    image: manus-api:latest
+    container_name: manus-api
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      ENV: ${ENV:-production}
+      SQLALCHEMY_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@manus-postgres:5432/${POSTGRES_DB:-manus}
+      REDIS_HOST: manus-redis
+      SANDBOX_ADDRESS: manus-sandbox
+      SANDBOX_NETWORK: manus-network
+      SANDBOX_IMAGE: manus-sandbox:latest
+      TZ: ${TZ:-Asia/Shanghai}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      sandbox:
+        condition: service_healthy
+    networks:
+      - manus-network
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -fsS http://localhost:8000/api/status >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  ui:
+    build:
+      context: ./ui
+      args:
+        NEXT_PUBLIC_API_BASE_URL: /api
+        INTERNAL_API_BASE_URL: http://api:8000/api
+    image: manus-ui:latest
+    container_name: manus-ui
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_BASE_URL: /api
+      INTERNAL_API_BASE_URL: http://api:8000/api
+      PORT: 3000
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - manus-network
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: manus-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-8088}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      ui:
+        condition: service_started
+    networks:
+      - manus-network
+
+volumes:
+  redis-data:
+  postgres-data:
+
+networks:
+  manus-network:
+    name: manus-network
+    driver: bridge

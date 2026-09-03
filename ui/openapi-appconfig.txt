@@ -1,0 +1,489 @@
+PATH /api/app-config/llm
+  get | get_llm_config_api_app_config_llm_get
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_LLMConfig_"}}}}
+  post | update_llm_config_api_app_config_llm_post
+  REQ: {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/LLMConfig"}}}, "required": true}
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_LLMConfig_"}}}}
+  RES422: {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+PATH /api/app-config/agent
+  get | get_agent_config_api_app_config_agent_get
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_AgentConfig_"}}}}
+  post | update_agent_config_api_app_config_agent_post
+  REQ: {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/AgentConfig"}}}, "required": true}
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_AgentConfig_"}}}}
+  RES422: {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+PATH /api/app-config/mcp-servers
+  get | get_mcp_servers_api_app_config_mcp_servers_get
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_ListMCPServerResponse_"}}}}
+  post | create_mcp_servers_api_app_config_mcp_servers_post
+  REQ: {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/MCPConfig"}}}, "required": true}
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_Union_Dict__NoneType__"}}}}
+  RES422: {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+PATH /api/app-config/mcp-servers/{server_name}/delete
+  post | delete_mcp_server_api_app_config_mcp_servers__server_name__delete_post
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_Union_Dict__NoneType__"}}}}
+  RES422: {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+PATH /api/app-config/mcp-servers/{server_name}/enabled
+  post | set_mcp_server_enabled_api_app_config_mcp_servers__server_name__enabled_post
+  REQ: {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Body_set_mcp_server_enabled_api_app_config_mcp_servers__server_name__enabled_post"}}}}
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_Union_Dict__NoneType__"}}}}
+  RES422: {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+PATH /api/app-config/a2a-servers
+  get | get_a2a_servers_api_app_config_a2a_servers_get
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_ListA2AServerResponse_"}}}}
+  post | create_a2a_server_api_app_config_a2a_servers_post
+  REQ: {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/Body_create_a2a_server_api_app_config_a2a_servers_post"}}}, "required": true}
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_Union_Dict__NoneType__"}}}}
+  RES422: {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+PATH /api/app-config/a2a-servers/{a2a_id}/delete
+  post | delete_a2a_server_api_app_config_a2a_servers__a2a_id__delete_post
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_Union_Dict__NoneType__"}}}}
+  RES422: {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+PATH /api/app-config/a2a-servers/{a2a_id}/enabled
+  post | set_a2a_server_enabled_api_app_config_a2a_servers__a2a_id__enabled_post
+  REQ: {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Body_set_a2a_server_enabled_api_app_config_a2a_servers__a2a_id__enabled_post"}}}}
+  RES200: {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Response_Union_Dict__NoneType__"}}}}
+  RES422: {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+### AgentConfig
+{
+  "properties": {
+    "max_iterations": {
+      "type": "integer",
+      "exclusiveMaximum": 1000.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Max Iterations",
+      "default": 100
+    },
+    "max_retries": {
+      "type": "integer",
+      "exclusiveMaximum": 10.0,
+      "exclusiveMinimum": 1.0,
+      "title": "Max Retries",
+      "default": 3
+    },
+    "max_search_results": {
+      "type": "integer",
+      "exclusiveMaximum": 30.0,
+      "exclusiveMinimum": 1.0,
+      "title": "Max Search Results",
+      "default": 10
+    }
+  },
+  "type": "object",
+  "title": "AgentConfig",
+  "description": "Agentéç¨éç½®"
+}
+### Body_create_a2a_server_api_app_config_a2a_servers_post
+{
+  "properties": {
+    "base_url": {
+      "type": "string",
+      "title": "Base Url"
+    }
+  },
+  "type": "object",
+  "required": [
+    "base_url"
+  ],
+  "title": "Body_create_a2a_server_api_app_config_a2a_servers_post"
+}
+### Body_set_a2a_server_enabled_api_app_config_a2a_servers__a2a_id__enabled_post
+{
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled"
+    }
+  },
+  "type": "object",
+  "required": [
+    "enabled"
+  ],
+  "title": "Body_set_a2a_server_enabled_api_app_config_a2a_servers__a2a_id__enabled_post"
+}
+### Body_set_mcp_server_enabled_api_app_config_mcp_servers__server_name__enabled_post
+{
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled"
+    }
+  },
+  "type": "object",
+  "required": [
+    "enabled"
+  ],
+  "title": "Body_set_mcp_server_enabled_api_app_config_mcp_servers__server_name__enabled_post"
+}
+### LLMConfig
+{
+  "properties": {
+    "base_url": {
+      "type": "string",
+      "maxLength": 2083,
+      "minLength": 1,
+      "format": "uri",
+      "title": "Base Url",
+      "default": "https://api.deepseek.com"
+    },
+    "api_key": {
+      "type": "string",
+      "title": "Api Key",
+      "default": ""
+    },
+    "model_name": {
+      "type": "string",
+      "title": "Model Name",
+      "default": "deepseek-v4-flash"
+    },
+    "temperature": {
+      "type": "number",
+      "title": "Temperature",
+      "default": 0.7
+    },
+    "max_tokens": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "Max Tokens",
+      "default": 8192
+    }
+  },
+  "type": "object",
+  "title": "LLMConfig",
+  "description": "è¯­è¨æ¨¡åéç½®"
+}
+### ListA2AServerItem
+{
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Id",
+      "default": ""
+    },
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "default": ""
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "default": ""
+    },
+    "input_modes": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Input Modes"
+    },
+    "output_modes": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Output Modes"
+    },
+    "streaming": {
+      "type": "boolean",
+      "title": "Streaming",
+      "default": false
+    },
+    "push_notifications": {
+      "type": "boolean",
+      "title": "Push Notifications",
+      "default": false
+    },
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled",
+      "default": true
+    }
+  },
+  "type": "object",
+  "title": "ListA2AServerItem",
+  "description": "A2Aæå¡åè¡¨æ¡ç®éé¡¹"
+}
+### ListA2AServerResponse
+{
+  "properties": {
+    "a2a_servers": {
+      "items": {
+        "$ref": "#/components/schemas/ListA2AServerItem"
+      },
+      "type": "array",
+      "title": "A2A Servers"
+    }
+  },
+  "type": "object",
+  "title": "ListA2AServerResponse",
+  "description": "è·åA2Aæå¡åè¡¨ååºç»æ"
+}
+### ListMCPServerItem
+{
+  "properties": {
+    "server_name": {
+      "type": "string",
+      "title": "Server Name",
+      "default": ""
+    },
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled",
+      "default": true
+    },
+    "transport": {
+      "$ref": "#/components/schemas/MCPTransport",
+      "default": "streamable_http"
+    },
+    "tools": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Tools"
+    }
+  },
+  "type": "object",
+  "title": "ListMCPServerItem",
+  "description": "MCPæå¡åè¡¨æ¡ç®éé¡¹"
+}
+### ListMCPServerResponse
+{
+  "properties": {
+    "mcp_servers": {
+      "items": {
+        "$ref": "#/components/schemas/ListMCPServerItem"
+      },
+      "type": "array",
+      "title": "Mcp Servers"
+    }
+  },
+  "type": "object",
+  "title": "ListMCPServerResponse",
+  "description": "è·åMCPæå¡åè¡¨ååºç»æ"
+}
+### MCPConfig
+{
+  "properties": {
+    "mcpServers": {
+      "additionalProperties": {
+        "$ref": "#/components/schemas/MCPServerConfig"
+      },
+      "type": "object",
+      "title": "Mcpservers"
+    }
+  },
+  "additionalProperties": true,
+  "type": "object",
+  "title": "MCPConfig",
+  "description": "åºç¨MCPéç½®"
+}
+### MCPServerConfig
+{
+  "properties": {
+    "transport": {
+      "$ref": "#/components/schemas/MCPTransport",
+      "default": "streamable_http"
+    },
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled",
+      "default": true
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Description"
+    },
+    "env": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Env"
+    },
+    "command": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Command"
+    },
+    "args": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Args"
+    },
+    "url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Url"
+    },
+    "headers": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Headers"
+    }
+  },
+  "additionalProperties": true,
+  "type": "object",
+  "title": "MCPServerConfig",
+  "description": "MCPåæ¡æå¡éç½®"
+}
+### MCPTransport
+{
+  "type": "string",
+  "enum": [
+    "stdio",
+    "sse",
+    "streamable_http"
+  ],
+  "title": "MCPTransport",
+  "description": "MCPä¼ è¾ç±»åæä¸¾"
+}
+### Response_AgentConfig_
+{
+  "properties": {
+    "code": {
+      "type": "integer",
+      "title": "Code",
+      "default": 200
+    },
+    "msg": {
+      "type": "string",
+      "title": "Msg",
+      "default": "success"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "$ref": "#/components/schemas/AgentConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "title": "Response[AgentConfig]"
+}
+### Response_LLMConfig_
+{
+  "properties": {
+    "code": {
+      "type": "integer",
+      "title": "Code",
+      "default": 200
+    },
+    "msg": {
+      "type": "string",
+      "title": "Msg",
+      "default": "success"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "$ref": "#/components/schemas/LLMConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "title": "Response[LLMConfig]"
+}
+### Response_ListA2AServerResponse_
+{
+  "properties": {
+    "code": {
+      "type": "integer",
+      "title": "Code",
+      "default": 200
+    },
+    "msg": {
+      "type": "string",
+      "title": "Msg",
+      "default": "success"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "$ref": "#/components/schemas/ListA2AServerResponse"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "title": "Response[ListA2AServerResponse]"
+}
+### Response_ListMCPServerResponse_
+{
+  "properties": {
+    "code": {
+      "type": "integer",
+      "title": "Code",
+      "default": 200
+    },
+    "msg": {
+      "type": "string",
+      "title": "Msg",
+      "default": "success"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "$ref": "#/components/schemas/ListMCPServerResponse"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "title": "Response[ListMCPServerResponse]"
+}
