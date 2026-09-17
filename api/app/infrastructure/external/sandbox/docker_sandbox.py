@@ -40,9 +40,12 @@ class DockerSandbox(Sandbox):
     @property
     def id(self) -> str:
         """获取沙箱的唯一id，使用容器名字作为唯一id"""
-        if not self._container_name:
-            return "mooc-manus-sandbox"
-        return self._container_name
+        if self._container_name:
+            return self._container_name
+        # 直连共享沙箱(SANDBOX_ADDRESS)模式没有容器名，用配置的地址/前缀兜底，
+        # 保证同一配置下所有会话拿到稳定且可被get()解析的id
+        settings = get_settings()
+        return settings.sandbox_address or settings.sandbox_name_prefix or "sandbox"
 
     @property
     def vnc_url(self) -> str:

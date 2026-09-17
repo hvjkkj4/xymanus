@@ -255,22 +255,27 @@ class SupervisorService:
             raise BadRequestException("超时时间未配置，请核实后重试")
         with self._state_lock:
             deadline = self.shutdown_time
+
+        # 2.在原截止时间上直接叠加，避免"取整到整分钟"造成累积漂移
+        #   (原实现按 round(剩余秒/60)+minutes 重算，每次调用会白送最多30秒)
         if deadline is None:
             # 当前没有可延长的截止时间(如曾被取消)，则按系统默认超时配置激活
-            timeout_minutes = get_settings().server_timeout_minutes or minutes
+            new_deadline = datetime.now() + timedelta(
+                minutes=get_settings().server_timeout_minutes or minutes
+            )
         else:
-            remaining = (deadline - datetime.now()).total_seconds()
-            timeout_minutes = round(max(0, remaining) / 60) + minutes
+            # 已过期的截止时间以当前时间为基准，避免叠加后仍落在过去而立即被销毁
+            new_deadline = max(deadline, datetime.now()) + timedelta(minutes=minutes)
 
-        # 2.更新超时截止时间(后台监控线程负责到期触发)
-        self._arm(datetime.now() + timedelta(minutes=timeout_minutes))
+        # 3.更新超时截止时间(后台监控线程负责到期触发)
+        self._arm(new_deadline)
         self._ensure_monitor_running()
 
         return SupervisorTimeout(
             status="timeout_extended",
             active=True,
-            shutdown_time=self.shutdown_time.isoformat(),
-            timeout_minutes=timeout_minutes,
+            shutdown_time=new_deadline.isoformat(),
+            timeout_minutes=int(self._remaining_seconds() // 60),
             remaining_seconds=self._remaining_seconds()
         )
 

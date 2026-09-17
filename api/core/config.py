@@ -31,8 +31,8 @@ class Settings(BaseSettings):
 
     # Sandbox配置
     sandbox_address: Optional[str] = None
-    sandbox_image: Optional[str] = None
-    sandbox_name_prefix: Optional[str] = None
+    sandbox_image: Optional[str] = "manus-sandbox:latest"
+    sandbox_name_prefix: Optional[str] = "manus-sandbox"
     sandbox_ttl_minutes: Optional[int] = 60
     sandbox_network: Optional[str] = None
     sandbox_chrome_args: Optional[str] = ""

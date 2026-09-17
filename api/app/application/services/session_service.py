@@ -25,9 +25,12 @@ class SessionService:
         self._sandbox_cls = sandbox_cls
 
     async def create_session(self) -> Session:
-        """创建一个空白的新任务会话"""
+        """创建会话并立即分配一个独立的沙箱容器"""
         logger.info(f"创建一个空白新任务会话")
         session = Session(title="新对话")
+
+        sandbox = await self._sandbox_cls.create()
+        session.sandbox_id = sandbox.id
         async with self._uow:
             await self._uow.session.save(session)
         logger.info(f"成功创建一个新任务会话: {session.id}")
@@ -160,19 +163,19 @@ class SessionService:
         async with self._uow:
             session = await self._uow.session.get_by_id(session_id)
         if not session:
-            raise RuntimeError(f"当前会话不存在[{session_id}]，请核实后重试")
+            raise NotFoundError(f"当前会话不存在[{session_id}]，请核实后重试")
 
         # 2.根据沙箱id获取沙箱
-        sandbox = None
-        if session.sandbox_id:
-            sandbox = await self._sandbox_cls.get(session.sandbox_id)
+        if not session.sandbox_id:
+            raise NotFoundError("当前会话无沙箱环境")
+        sandbox = await self._sandbox_cls.get(session.sandbox_id)
 
-        # 3.沙箱不存在(可能已被回收)则重建并更新会话，保证远程浏览器始终可用
+        # 3.沙箱不存在说明已被超时回收。这里刻意不重建：
+        #   重建出来的是全新空沙箱，会话中的文件与环境已随回收一并丢失，
+        #   静默重建并覆盖sandbox_id会让用户误以为原有工作仍在。
+        #   前端VNCViewer收到非正常断开后会提示"沙箱可能已被回收"。
         if not sandbox:
-            logger.warning(f"会话[{session_id}]沙箱不存在或已销毁，重新创建沙箱...")
-            sandbox = await self._sandbox_cls.create()
-            session.sandbox_id = sandbox.id
-            async with self._uow:
-                await self._uow.session.save(session)
+            logger.warning(f"会话[{session_id}]的沙箱[{session.sandbox_id}]已被回收，拒绝建立VNC连接")
+            raise NotFoundError("当前会话沙箱已被回收，无法打开远程浏览器")
 
         return sandbox.vnc_url

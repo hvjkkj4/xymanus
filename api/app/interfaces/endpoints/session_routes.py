@@ -8,7 +8,7 @@ from sse_starlette import EventSourceResponse, ServerSentEvent
 from starlette.websockets import WebSocketDisconnect, WebSocket
 from websockets import ConnectionClosed
 
-from app.application.errors.exceptions import NotFoundError
+from app.application.errors.exceptions import AppException, NotFoundError
 from app.application.services.agent_service import AgentService
 from app.application.services.session_service import SessionService
 from app.interfaces.schemas import Response
@@ -343,6 +343,11 @@ async def vnc_websocket(
             for task in pending:
                 task.cancel()
 
+    except AppException as app_e:
+        # 业务异常(如沙箱已被回收)。注意 AppException.__init__ 调用的是无参的
+        # super().__init__()，str(e) 恒为空串，必须取 e.msg 才能带出具体原因。
+        logger.warning(f"WebSocket业务异常: {app_e.msg}")
+        await websocket.close(code=1011, reason=app_e.msg)
     except ConnectionError as connection_e:
         # 连接沙箱环境失败，关闭websocket
         logger.error(f"连接沙箱环境失败: {str(connection_e)}")

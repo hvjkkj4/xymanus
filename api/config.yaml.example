@@ -1,0 +1,31 @@
+# 复制为同目录下的 config.yaml 后填入自己的密钥。
+# config.yaml 已被 .gitignore 忽略，请勿提交（里面含 LLM api_key 与 MCP key）。
+#
+# 说明：若 config.yaml 不存在，FileAppConfigRepository 会自动生成一份默认配置，
+# 服务不会启动失败，只是 LLM/MCP 不可用；也可以在 UI 的配置页填写后自动落盘。
+
+llm_config:
+  base_url: https://api.deepseek.com/
+  # 这里填自己的 API Key，例如 sk-xxxxxxxx
+  api_key: 
+  model_name: deepseek-flash
+  temperature: 0.7
+  max_tokens: 8192
+agent_config:
+  max_iterations: 100
+  max_retries: 3
+  max_search_results: 10
+mcp_config:
+  mcpServers:
+    amap-maps-streamableHTTP:
+      transport: streamable_http
+      enabled: true
+      description: null
+      env: null
+      command: null
+      args: null
+      # 这里填自己的高德开放平台 Key
+      url: https://mcp.amap.com/mcp?key=
+      headers: null
+a2a_config:
+  a2a_servers: []

@@ -4,3 +4,7 @@ __pycache__
 *.pyc
 .git
 .idea
+.devops
+
+# 本地缓存的安装包，不进构建上下文（否则被 COPY . . 烤进镜像）
+*.deb

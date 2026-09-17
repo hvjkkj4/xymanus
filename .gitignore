@@ -5,6 +5,9 @@
 api/.env
 ui/.env.local
 
+api/config.yaml
+api/config.lock
+
 **/.venv/
 **/__pycache__/
 **/*.py[cod]

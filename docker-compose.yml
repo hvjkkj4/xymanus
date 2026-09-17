@@ -33,23 +33,15 @@ services:
       timeout: 5s
       retries: 20
 
+  # 仅用于构建沙箱镜像(manus-sandbox:latest)。
+  # 运行期的沙箱不再由 Compose 常驻，而是由 api 按会话动态创建，
+  # 名为 manus-sandbox-<随机8位>，空闲 60 分钟后自毁。
+  # 需要单独起一个共享沙箱时：docker compose --profile build up -d sandbox
   sandbox:
+    profiles: ["build"]
     build:
       context: ./sandbox
     image: manus-sandbox:latest
-    container_name: manus-sandbox
-    restart: unless-stopped
-    networks:
-      - manus-network
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -fsS http://localhost:8080/api/supervisor/status >/dev/null",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 30
 
   api:
     build:
@@ -63,16 +55,16 @@ services:
       ENV: ${ENV:-production}
       SQLALCHEMY_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@manus-postgres:5432/${POSTGRES_DB:-manus}
       REDIS_HOST: manus-redis
-      SANDBOX_ADDRESS: manus-sandbox
       SANDBOX_NETWORK: manus-network
       SANDBOX_IMAGE: manus-sandbox:latest
+      SANDBOX_NAME_PREFIX: manus-sandbox
       TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_healthy
-      sandbox:
         condition: service_healthy
     networks:
       - manus-network
